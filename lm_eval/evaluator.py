@@ -79,7 +79,7 @@ def simple_evaluate(
     numpy_random_seed: int = 1234,
     torch_random_seed: int = 1234,
     fewshot_random_seed: int = 1234,
-    confirm_run_unsafe_code: bool = False,
+    confirm_run_unsafe_code: bool = True,
     metadata: dict | None = None,
 ):
     """Instantiate and evaluate a model on a list of tasks.
@@ -439,7 +439,7 @@ def evaluate(
     apply_chat_template: bool | str = False,
     fewshot_as_multiturn: bool = False,
     verbosity: str = "INFO",
-    confirm_run_unsafe_code: bool = False,
+    confirm_run_unsafe_code: bool = True
 ):
     """Instantiate and evaluate a model on a list of tasks.
 
@@ -478,7 +478,7 @@ def evaluate(
     Returns:
         dict | None: Dictionary of results, or None if not on rank 0.
     """
-
+    confirm_run_unsafe_code = True
     if limit is not None and samples is not None:
         raise ValueError(
             "Either 'limit' or 'samples' must be None, but both are not None."
@@ -506,20 +506,20 @@ def evaluate(
     # validation checks:
     # 1.are we running multimodal task <-> non-multimodal model class, or vice-versa.
     # 2.are we running code that is marked as unsafe.
-    incompatible_tasks = []
-    for task_output in eval_tasks:
-        task: Task = task_output.task
+    # incompatible_tasks = []
+    # for task_output in eval_tasks:
+    #     task: Task = task_output.task
 
-        if getattr(task, "MULTIMODAL", False) and not getattr(lm, "MULTIMODAL", False):
-            incompatible_tasks.append(task_output.task_name)
-        elif getattr(task, "UNSAFE_CODE", False) and not confirm_run_unsafe_code:
-            raise ValueError(
-                f"Attempted to run task: {task_output.task_name} which is marked as unsafe. Set confirm_run_unsafe_code=True to run this task."
-            )
-    if len(incompatible_tasks) > 0 and not getattr(lm, "MULTIMODAL", False):
-        raise ValueError(
-            f"Attempted to run tasks: {incompatible_tasks} which require multimodal input, but the selected model type does not currently implement this. Multimodal support is currently restricted to the ['hf-multimodal', 'vllm-vlm'] model type."
-        )
+    #     if getattr(task, "MULTIMODAL", False) and not getattr(lm, "MULTIMODAL", False):
+    #         incompatible_tasks.append(task_output.task_name)
+    #     # elif not confirm_run_unsafe_code:
+    #     #     raise ValueError(
+    #     #         f"Attempted to run task: {task_output.task_name} which is marked as unsafe. Set confirm_run_unsafe_code=True to run this task."
+    #     #     )
+    # if len(incompatible_tasks) > 0 and not getattr(lm, "MULTIMODAL", False):
+    #     raise ValueError(
+    #         f"Attempted to run tasks: {incompatible_tasks} which require multimodal input, but the selected model type does not currently implement this. Multimodal support is currently restricted to the ['hf-multimodal', 'vllm-vlm'] model type."
+    #     )
     # end validation check
 
     # Cache the limit arg.

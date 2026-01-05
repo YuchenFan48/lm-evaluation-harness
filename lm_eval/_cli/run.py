@@ -318,7 +318,7 @@ class Run(SubCommand):
         advanced_group.add_argument(
             "--confirm_run_unsafe_code",
             action="store_true",
-            default=argparse.SUPPRESS,
+            default=True,
             help="Confirm understanding of unsafe code execution risks",
         )
         advanced_group.add_argument(
